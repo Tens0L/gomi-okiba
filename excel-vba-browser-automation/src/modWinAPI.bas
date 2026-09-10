@@ -41,6 +41,8 @@ Public Const MOUSEEVENTF_LEFTDOWN As Long = &H2
 Public Const MOUSEEVENTF_LEFTUP As Long = &H4
 Public Const MOUSEEVENTF_RIGHTDOWN As Long = &H8
 Public Const MOUSEEVENTF_RIGHTUP As Long = &H10
+Public Const MOUSEEVENTF_WHEEL As Long = &H800
+Public Const WHEEL_DELTA As Long = 120
 
 Public Const GWL_STYLE As Long = -16
 Public Const WS_THICKFRAME As Long = &H40000

@@ -17,7 +17,8 @@ Option Explicit
 '
 ' Supported actions: OPEN, MOVE, CLICK, DBLCLICK, RIGHTCLICK,
 '                    TYPE, CLEARTYPE (clicks B/C then clears+types D),
-'                    KEY, WAIT.
+'                    KEY, SCROLL (D = notches, positive up / negative down;
+'                    B/C optional to move the cursor there first), WAIT.
 Public Sub RunAutomationSheet(Optional sheetName As String = "AutomationSteps")
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets(sheetName)
@@ -60,6 +61,14 @@ Public Sub RunAutomationSheet(Optional sheetName As String = "AutomationSteps")
             Case "KEY"
                 Application.SendKeys CStr(ws.Cells(r, "D").Value)
                 DoEvents
+
+            Case "SCROLL"
+                If Len(Trim$(ws.Cells(r, "B").Value)) > 0 And Len(Trim$(ws.Cells(r, "C").Value)) > 0 Then
+                    ScrollMouse CLng(ws.Cells(r, "D").Value), _
+                                CLng(ws.Cells(r, "B").Value), CLng(ws.Cells(r, "C").Value)
+                Else
+                    ScrollMouse CLng(ws.Cells(r, "D").Value)
+                End If
 
             Case "WAIT"
                 Sleep CLng(NzNum(ws.Cells(r, "E").Value, 500))

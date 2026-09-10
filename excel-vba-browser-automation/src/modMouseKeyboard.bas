@@ -55,6 +55,17 @@ Public Sub RightClickAt(x As Long, y As Long, _
     Sleep afterDelayMs
 End Sub
 
+' Scrolls the mouse wheel by the given number of notches (one notch is one
+' typical wheel click). Positive scrolls up, negative scrolls down.
+' Pass x/y to move the cursor over a specific area (e.g. a scrollable panel)
+' before scrolling; omit them to scroll wherever the cursor already is.
+Public Sub ScrollMouse(notches As Long, Optional x As Long = -1, Optional y As Long = -1, _
+                        Optional afterDelayMs As Long = 100)
+    If x <> -1 And y <> -1 Then MoveMouseTo x, y, False
+    mouse_event MOUSEEVENTF_WHEEL, 0, 0, notches * WHEEL_DELTA, 0
+    Sleep afterDelayMs
+End Sub
+
 ' Types text into whatever field currently has focus (numbers and
 ' strings both work, since they are sent as literal keystrokes).
 Public Sub TypeText(text As String, Optional afterDelayMs As Long = 100)
