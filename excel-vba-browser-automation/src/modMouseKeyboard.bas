@@ -108,6 +108,13 @@ Public Sub PressTab(Optional afterDelayMs As Long = 100)
     Sleep afterDelayMs
 End Sub
 
+' Presses Shift+Tab, to move focus back to the previous field.
+Public Sub PressShiftTab(Optional afterDelayMs As Long = 100)
+    Application.SendKeys "+{TAB}"
+    DoEvents
+    Sleep afterDelayMs
+End Sub
+
 ' Presses one of the arrow keys, optionally repeated (e.g. to move N steps
 ' through a dropdown list or a slider). direction is "UP", "DOWN", "LEFT" or
 ' "RIGHT" (case-insensitive).

@@ -17,7 +17,7 @@ Option Explicit
 '
 ' Supported actions: OPEN, MOVE, CLICK, DBLCLICK, RIGHTCLICK,
 '                    TYPE, CLEARTYPE (clicks B/C then clears+types D),
-'                    KEY, ENTER, SPACE, TAB,
+'                    KEY, ENTER, SPACE, TAB, SHIFTTAB,
 '                    UP, DOWN, LEFT, RIGHT (D = repeat count, default 1),
 '                    SCROLL (D = notches, positive up / negative down;
 '                    B/C optional to move the cursor there first),
@@ -74,6 +74,9 @@ Public Sub RunAutomationSheet(Optional sheetName As String = "AutomationSteps")
 
             Case "TAB"
                 PressTab
+
+            Case "SHIFTTAB"
+                PressShiftTab
 
             Case "UP", "DOWN", "LEFT", "RIGHT"
                 PressArrow action, CLng(NzNum(ws.Cells(r, "D").Value, 1))
