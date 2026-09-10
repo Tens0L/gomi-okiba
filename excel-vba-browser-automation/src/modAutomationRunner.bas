@@ -65,7 +65,7 @@ Public Sub RunAutomationSheet(Optional sheetName As String = "AutomationSteps")
                 Sleep CLng(NzNum(ws.Cells(r, "E").Value, 500))
 
             Case Else
-                Debug.Print "RunAutomationSheet: 未対応のAction '" & action & "' (行" & r & ") をスキップしました"
+                Debug.Print "RunAutomationSheet: skipped unsupported Action '" & action & "' (row " & r & ")"
         End Select
 
         DoEvents

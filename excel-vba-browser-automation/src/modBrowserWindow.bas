@@ -46,9 +46,19 @@ Public Function LaunchChromeFixedSize(url As String, _
     LaunchChromeFixedSize = hwnd
 End Function
 
-' Tries the common install locations for Chrome. Raises an error if none exist;
-' pass chromePath explicitly to LaunchChromeFixedSize when Chrome is elsewhere.
+' Locates chrome.exe. First asks Windows itself (the same "App Paths" registry
+' key the Start Menu / Run dialog use to resolve "chrome"), which works no
+' matter where Chrome was installed. Falls back to the common install
+' locations, then raises a clear error if none of that finds it.
+' Pass chromePath explicitly to LaunchChromeFixedSize to skip this entirely.
 Public Function DefaultChromePath() As String
+    Dim fromRegistry As String
+    fromRegistry = ReadAppPathFromRegistry("chrome.exe")
+    If fromRegistry <> "" And Dir$(fromRegistry) <> "" Then
+        DefaultChromePath = fromRegistry
+        Exit Function
+    End If
+
     Dim candidates(2) As String
     candidates(0) = Environ$("ProgramFiles") & "\Google\Chrome\Application\chrome.exe"
     candidates(1) = Environ$("ProgramFiles(x86)") & "\Google\Chrome\Application\chrome.exe"
@@ -63,7 +73,20 @@ Public Function DefaultChromePath() As String
     Next i
 
     Err.Raise vbObjectError + 1, "DefaultChromePath", _
-        "chrome.exe が見つかりません。LaunchChromeFixedSize の chromePath 引数でパスを指定してください。"
+        "chrome.exe was not found. Pass the chromePath argument to " & _
+        "LaunchChromeFixedSize explicitly, or verify that Chrome is installed."
+End Function
+
+' Reads HKLM\...\App Paths\<exeName>\(Default), the registry key Windows
+' uses to resolve a bare executable name to its full path. Returns "" (never
+' raises) if the key is missing or unreadable.
+Private Function ReadAppPathFromRegistry(exeName As String) As String
+    On Error Resume Next
+    Dim wsh As Object
+    Set wsh = CreateObject("WScript.Shell")
+    ReadAppPathFromRegistry = wsh.RegRead( _
+        "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\" & exeName & "\")
+    On Error GoTo 0
 End Function
 
 ' Finds the main top-level window belonging to the given process id.

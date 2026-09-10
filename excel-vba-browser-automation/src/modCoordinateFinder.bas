@@ -13,7 +13,7 @@ Public Sub ShowCursorPositionLive(Optional durationSeconds As Long = 30)
 
     Do While Timer - startTime < durationSeconds
         GetCursorPos pt
-        Application.StatusBar = "Mouse position: X=" & pt.x & "  Y=" & pt.y & "   (Escで停止)"
+        Application.StatusBar = "Mouse position: X=" & pt.x & "  Y=" & pt.y & "   (press Esc to stop)"
         DoEvents
 
         If (GetAsyncKeyState(vbKeyEscape) And &H8000) <> 0 Then Exit Do

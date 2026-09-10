@@ -17,8 +17,10 @@ Excel VBA + Windows API だけで、ブラウザを固定サイズで開き、�
 
 - Windows + Excel 2010以降（VBA7 / PtrSafe 宣言を使用。32bit・64bit Office両対応）
 - マクロを有効化（「トラストセンター」でマクロの実行を許可）
-- Google Chrome がインストール済み（既定のインストール先を自動検出。別ブラウザ/別パスの
-  場合は `LaunchChromeFixedSize` の `chromePath` 引数で指定）
+- Google Chrome がインストール済み（レジストリ（App Paths）とインストール先候補パスの
+  両方から自動検出。`DefaultChromePath()` をイミディエイトウィンドウで直接実行すると
+  検出結果を確認できます。見つからない場合や別ブラウザを使う場合は
+  `LaunchChromeFixedSize` の `chromePath` 引数で明示的にパスを指定してください）
 
 ## ファイル構成
 
@@ -38,6 +40,10 @@ excel-vba-browser-automation/
 1. Excelで新規ブック（マクロ有効ブック `.xlsm`）を作成
 2. VBEditor（Alt+F11）を開き、`ファイル > ファイルのインポート` で
    `src/` 内の `.bas` を5つすべてインポート
+   （`.bas` ファイル自体はコード中に日本語を含まないASCIIのみで書かれているため、
+   文字コードの違いによる文字化けは起きません。インポート後に文字化けが見える場合は
+   古いバージョンのファイルが残っている可能性があるので、一度モジュールを削除して
+   最新の `.bas` を再インポートしてください）
 3. ワークシートを1つ追加し、シート名を `AutomationSteps` に変更
 4. 1行目に見出し（`Action, X, Y, Text, WaitMs, Url`）を入力し、
    `SampleAutomationSteps.csv` の内容を参考に手順を入力
