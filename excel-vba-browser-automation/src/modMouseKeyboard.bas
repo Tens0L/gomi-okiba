@@ -87,6 +87,67 @@ Public Sub ClearFieldAndType(x As Long, y As Long, text As String)
     TypeText text
 End Sub
 
+' Presses Enter, e.g. to submit a form after typing into its last field.
+Public Sub PressEnter(Optional afterDelayMs As Long = 100)
+    Application.SendKeys "{ENTER}"
+    DoEvents
+    Sleep afterDelayMs
+End Sub
+
+' Presses the Space bar, e.g. to toggle a checkbox or an active button.
+Public Sub PressSpace(Optional afterDelayMs As Long = 100)
+    Application.SendKeys " "
+    DoEvents
+    Sleep afterDelayMs
+End Sub
+
+' Presses Tab, e.g. to move focus to the next field without clicking it.
+Public Sub PressTab(Optional afterDelayMs As Long = 100)
+    Application.SendKeys "{TAB}"
+    DoEvents
+    Sleep afterDelayMs
+End Sub
+
+' Presses one of the arrow keys, optionally repeated (e.g. to move N steps
+' through a dropdown list or a slider). direction is "UP", "DOWN", "LEFT" or
+' "RIGHT" (case-insensitive).
+Public Sub PressArrow(direction As String, Optional times As Long = 1, _
+                       Optional afterDelayMs As Long = 100)
+    Dim code As String
+    Select Case UCase$(direction)
+        Case "UP": code = "{UP}"
+        Case "DOWN": code = "{DOWN}"
+        Case "LEFT": code = "{LEFT}"
+        Case "RIGHT": code = "{RIGHT}"
+        Case Else
+            Err.Raise vbObjectError + 3, "PressArrow", _
+                "direction must be UP, DOWN, LEFT, or RIGHT."
+    End Select
+
+    Dim i As Long
+    For i = 1 To times
+        Application.SendKeys code
+        DoEvents
+    Next i
+    Sleep afterDelayMs
+End Sub
+
+Public Sub PressUp(Optional times As Long = 1, Optional afterDelayMs As Long = 100)
+    PressArrow "UP", times, afterDelayMs
+End Sub
+
+Public Sub PressDown(Optional times As Long = 1, Optional afterDelayMs As Long = 100)
+    PressArrow "DOWN", times, afterDelayMs
+End Sub
+
+Public Sub PressLeft(Optional times As Long = 1, Optional afterDelayMs As Long = 100)
+    PressArrow "LEFT", times, afterDelayMs
+End Sub
+
+Public Sub PressRight(Optional times As Long = 1, Optional afterDelayMs As Long = 100)
+    PressArrow "RIGHT", times, afterDelayMs
+End Sub
+
 ' SendKeys treats + ^ % ~ ( ) { } [ ] as special characters;
 ' wrap each one in braces so literal text (e.g. "3+4", "a(b)") is typed as-is.
 Public Function EscapeForSendKeys(text As String) As String

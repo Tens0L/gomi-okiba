@@ -17,7 +17,9 @@ Option Explicit
 '
 ' Supported actions: OPEN, MOVE, CLICK, DBLCLICK, RIGHTCLICK,
 '                    TYPE, CLEARTYPE (clicks B/C then clears+types D),
-'                    KEY, SCROLL (D = notches, positive up / negative down;
+'                    KEY, ENTER, SPACE, TAB,
+'                    UP, DOWN, LEFT, RIGHT (D = repeat count, default 1),
+'                    SCROLL (D = notches, positive up / negative down;
 '                    B/C optional to move the cursor there first),
 '                    RESIZEACTIVE (B = width, C = height, D = "LOCK" to also
 '                    disable manual resize/maximize afterwards), WAIT.
@@ -63,6 +65,18 @@ Public Sub RunAutomationSheet(Optional sheetName As String = "AutomationSteps")
             Case "KEY"
                 Application.SendKeys CStr(ws.Cells(r, "D").Value)
                 DoEvents
+
+            Case "ENTER"
+                PressEnter
+
+            Case "SPACE"
+                PressSpace
+
+            Case "TAB"
+                PressTab
+
+            Case "UP", "DOWN", "LEFT", "RIGHT"
+                PressArrow action, CLng(NzNum(ws.Cells(r, "D").Value, 1))
 
             Case "SCROLL"
                 If Len(Trim$(ws.Cells(r, "B").Value)) > 0 And Len(Trim$(ws.Cells(r, "C").Value)) > 0 Then
