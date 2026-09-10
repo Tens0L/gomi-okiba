@@ -8,8 +8,9 @@ Private mTargetPid As Long
 Private mFoundHwnd As LongPtr
 Private mSearchTitle As String
 
-' Launches Chrome with the given URL, waits for its window to appear,
-' then removes the resize border and forces the requested size/position.
+' Launches a Chromium-based browser (Chrome, falling back to Edge) with the
+' given URL, waits for its window to appear, then removes the resize border
+' and forces the requested size/position.
 ' Returns the window handle (0 if the window could not be located).
 Public Function LaunchChromeFixedSize(url As String, _
                                        Optional width As Long = 1280, _
@@ -19,7 +20,7 @@ Public Function LaunchChromeFixedSize(url As String, _
                                        Optional chromePath As String = "") As LongPtr
     Dim path As String
     path = chromePath
-    If path = "" Then path = DefaultChromePath()
+    If path = "" Then path = DefaultBrowserPath()
 
     Dim cmd As String
     cmd = """" & path & """ --new-window " & _
@@ -46,35 +47,70 @@ Public Function LaunchChromeFixedSize(url As String, _
     LaunchChromeFixedSize = hwnd
 End Function
 
-' Locates chrome.exe. First asks Windows itself (the same "App Paths" registry
-' key the Start Menu / Run dialog use to resolve "chrome"), which works no
-' matter where Chrome was installed. Falls back to the common install
-' locations, then raises a clear error if none of that finds it.
+' Locates a Chromium-based browser executable. Tries Chrome first, then
+' Edge (which ships with every current Windows install, so this normally
+' succeeds even on a machine without Chrome). For each browser it first
+' asks Windows itself (the "App Paths" registry key the Start Menu / Run
+' dialog use to resolve a bare exe name), then falls back to the common
+' install locations. Raises a clear error only if neither browser is found.
 ' Pass chromePath explicitly to LaunchChromeFixedSize to skip this entirely.
-Public Function DefaultChromePath() As String
-    Dim fromRegistry As String
-    fromRegistry = ReadAppPathFromRegistry("chrome.exe")
-    If fromRegistry <> "" And Dir$(fromRegistry) <> "" Then
-        DefaultChromePath = fromRegistry
+Public Function DefaultBrowserPath() As String
+    Dim found As String
+
+    found = FindBrowserExe("chrome.exe", ChromeCandidatePaths())
+    If found <> "" Then
+        DefaultBrowserPath = found
         Exit Function
     End If
 
-    Dim candidates(2) As String
-    candidates(0) = Environ$("ProgramFiles") & "\Google\Chrome\Application\chrome.exe"
-    candidates(1) = Environ$("ProgramFiles(x86)") & "\Google\Chrome\Application\chrome.exe"
-    candidates(2) = Environ$("LocalAppData") & "\Google\Chrome\Application\chrome.exe"
+    found = FindBrowserExe("msedge.exe", EdgeCandidatePaths())
+    If found <> "" Then
+        DefaultBrowserPath = found
+        Exit Function
+    End If
+
+    Err.Raise vbObjectError + 1, "DefaultBrowserPath", _
+        "Neither chrome.exe nor msedge.exe was found. Pass the chromePath " & _
+        "argument to LaunchChromeFixedSize explicitly with the full path to " & _
+        "your browser's .exe."
+End Function
+
+' Kept for backward compatibility with existing callers/scripts.
+Public Function DefaultChromePath() As String
+    DefaultChromePath = DefaultBrowserPath()
+End Function
+
+Private Function FindBrowserExe(exeName As String, candidatePaths As Variant) As String
+    Dim fromRegistry As String
+    fromRegistry = ReadAppPathFromRegistry(exeName)
+    If fromRegistry <> "" And Dir$(fromRegistry) <> "" Then
+        FindBrowserExe = fromRegistry
+        Exit Function
+    End If
 
     Dim i As Long
-    For i = 0 To UBound(candidates)
-        If Dir$(candidates(i)) <> "" Then
-            DefaultChromePath = candidates(i)
+    For i = LBound(candidatePaths) To UBound(candidatePaths)
+        If Dir$(candidatePaths(i)) <> "" Then
+            FindBrowserExe = candidatePaths(i)
             Exit Function
         End If
     Next i
 
-    Err.Raise vbObjectError + 1, "DefaultChromePath", _
-        "chrome.exe was not found. Pass the chromePath argument to " & _
-        "LaunchChromeFixedSize explicitly, or verify that Chrome is installed."
+    FindBrowserExe = ""
+End Function
+
+Private Function ChromeCandidatePaths() As Variant
+    ChromeCandidatePaths = Array( _
+        Environ$("ProgramFiles") & "\Google\Chrome\Application\chrome.exe", _
+        Environ$("ProgramFiles(x86)") & "\Google\Chrome\Application\chrome.exe", _
+        Environ$("LocalAppData") & "\Google\Chrome\Application\chrome.exe")
+End Function
+
+Private Function EdgeCandidatePaths() As Variant
+    EdgeCandidatePaths = Array( _
+        Environ$("ProgramFiles(x86)") & "\Microsoft\Edge\Application\msedge.exe", _
+        Environ$("ProgramFiles") & "\Microsoft\Edge\Application\msedge.exe", _
+        Environ$("LocalAppData") & "\Microsoft\Edge\Application\msedge.exe")
 End Function
 
 ' Reads HKLM\...\App Paths\<exeName>\(Default), the registry key Windows
