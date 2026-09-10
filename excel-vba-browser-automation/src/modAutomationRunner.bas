@@ -18,7 +18,9 @@ Option Explicit
 ' Supported actions: OPEN, MOVE, CLICK, DBLCLICK, RIGHTCLICK,
 '                    TYPE, CLEARTYPE (clicks B/C then clears+types D),
 '                    KEY, SCROLL (D = notches, positive up / negative down;
-'                    B/C optional to move the cursor there first), WAIT.
+'                    B/C optional to move the cursor there first),
+'                    RESIZEACTIVE (B = width, C = height, D = "LOCK" to also
+'                    disable manual resize/maximize afterwards), WAIT.
 Public Sub RunAutomationSheet(Optional sheetName As String = "AutomationSteps")
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets(sheetName)
@@ -69,6 +71,10 @@ Public Sub RunAutomationSheet(Optional sheetName As String = "AutomationSteps")
                 Else
                     ScrollMouse CLng(ws.Cells(r, "D").Value)
                 End If
+
+            Case "RESIZEACTIVE"
+                ResizeForegroundWindow CLng(ws.Cells(r, "B").Value), CLng(ws.Cells(r, "C").Value), _
+                                       , , UCase$(Trim$(CStr(ws.Cells(r, "D").Value))) = "LOCK"
 
             Case "WAIT"
                 Sleep CLng(NzNum(ws.Cells(r, "E").Value, 500))

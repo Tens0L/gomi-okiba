@@ -36,6 +36,7 @@ Public Declare PtrSafe Function SetWindowLong Lib "user32" Alias "SetWindowLongA
 Public Declare PtrSafe Function ShowWindow Lib "user32" (ByVal hwnd As LongPtr, ByVal nCmdShow As Long) As Long
 Public Declare PtrSafe Function SetForegroundWindow Lib "user32" (ByVal hwnd As LongPtr) As Long
 Public Declare PtrSafe Function GetAsyncKeyState Lib "user32" (ByVal vKey As Long) As Integer
+Public Declare PtrSafe Function GetForegroundWindow Lib "user32" () As LongPtr
 
 Public Const MOUSEEVENTF_LEFTDOWN As Long = &H2
 Public Const MOUSEEVENTF_LEFTUP As Long = &H4

@@ -176,6 +176,46 @@ Public Function EnumWindowsByTitleCallback(ByVal hwnd As LongPtr, ByVal lParam A
     EnumWindowsByTitleCallback = 1 ' continue
 End Function
 
+' Resizes (and optionally repositions) whichever window currently has
+' focus/is selected - not just a browser launched by this project. Useful
+' to snap any already-open window (browser or otherwise) to the exact size
+' your automation script expects. Pass lockSize:=True to also disable
+' manual resizing/maximizing afterwards, same as LockWindowSize does.
+' delaySeconds gives you time to Alt+Tab to the target window before it is
+' captured - handy when running this from the VBE, since the VBE itself
+' would otherwise be "the foreground window" at the moment F5 is pressed.
+Public Sub ResizeForegroundWindow(width As Long, height As Long, _
+                                   Optional left As Long = -1, Optional top As Long = -1, _
+                                   Optional lockSize As Boolean = False, _
+                                   Optional delaySeconds As Long = 0)
+    If delaySeconds > 0 Then Sleep delaySeconds * 1000
+
+    Dim hwnd As LongPtr
+    hwnd = GetForegroundWindow()
+    If hwnd = 0 Then
+        Err.Raise vbObjectError + 2, "ResizeForegroundWindow", "No foreground window found."
+    End If
+
+    If lockSize Then
+        LockWindowSize hwnd, width, height, left, top
+        Exit Sub
+    End If
+
+    Dim x As Long, y As Long
+    If left = -1 Or top = -1 Then
+        Dim r As RECT
+        GetWindowRect hwnd, r
+        x = r.Left
+        y = r.Top
+    Else
+        x = left
+        y = top
+    End If
+
+    ShowWindow hwnd, SW_RESTORE
+    SetWindowPos hwnd, 0, x, y, width, height, SWP_NOZORDER
+End Sub
+
 ' Removes the resizable/maximize window styles and forces the given
 ' size and position, so the user cannot resize or maximize the window
 ' after the automation script has started.

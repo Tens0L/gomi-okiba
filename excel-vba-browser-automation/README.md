@@ -75,7 +75,29 @@ excel-vba-browser-automation/
 | `CLEARTYPE` | (X, Y) をクリック→既存値を全選択・削除→D列の文字列を入力 |
 | `KEY` | D列の内容をそのまま `SendKeys` に渡す（例: `{ENTER}`, `{TAB}`, `^s`） |
 | `SCROLL` | マウスホイールでスクロール。D列に「ノッチ数」（正=上, 負=下、例: `-3`）。B/C列を指定すると先にそこへカーソルを移動してからスクロール |
+| `RESIZEACTIVE` | 現在フォーカスしているウィンドウをB×C（幅×高さ）にリサイズ。D列に `LOCK` と入れるとリサイズ・最大化も禁止して固定 |
 | `WAIT` | E列のミリ秒だけ待機 |
+
+## 選択中のウィンドウをリサイズする
+
+`modBrowserWindow.ResizeForegroundWindow` を使うと、このプロジェクトで起動したブラウザ
+に限らず、**今フォーカスしている任意のウィンドウ**を指定サイズにリサイズできます
+（`GetForegroundWindow` APIで取得）。
+
+```vb
+' すぐにリサイズ（マクロ実行時にフォーカスしているウィンドウが対象）
+Call ResizeForegroundWindow(1280, 800)
+
+' 5秒後にリサイズ。VBEditorから実行する場合、実行直後はVBEditor自身が
+' フォアグラウンドになってしまうため、この間に対象ウィンドウをクリックして
+' フォーカスを移してください
+Call ResizeForegroundWindow(1280, 800, delaySeconds:=5)
+
+' リサイズ後、手動でのリサイズ・最大化も禁止して固定する
+Call ResizeForegroundWindow(1280, 800, lockSize:=True, delaySeconds:=5)
+```
+
+手順シートからは `RESIZEACTIVE` アクションで同じことができます（上表を参照）。
 
 ## 座標の調べ方
 
